@@ -1,0 +1,36 @@
+# @package _global_
+defaults:
+  - override /backbone: clip_vision
+  - _self_
+
+
+model:
+  _target_: models.arch.semicon.SEMICONWithAdapter
+  backbone: ${backbone}
+  nbit: 64
+  nclass: ${dataset.nclass}
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+
+trainer:
+  _target_: trainers.semicon.SEMICONTrainer
+
+criterion:
+  _target_: models.loss.semicon.ADSHLoss
+  multiclass: ${dataset.multiclass}
+  gamma: 200
+  nbit: ${model.nbit}
+
+method_params:
+  num_samples: 4000
+  inner_epochs: 30
+
+backbone_lr_scale: 0
+batch_size: 16
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 50

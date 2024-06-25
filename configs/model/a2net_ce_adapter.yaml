@@ -1,0 +1,32 @@
+# @package _global_
+defaults:
+  - override /backbone: clip_vision
+  - _self_
+
+model:
+  _target_: models.arch.a2net_ce.A2NetCE
+  num_attns: 4
+  backbone: ${backbone}
+  nbit: 64
+  nclass: ${dataset.nclass}
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+
+trainer:
+  _target_: trainers.a2net_ce.A2NetCETrainer
+
+criterion:
+  _target_: models.loss.a2net_ce.A2NetCELoss
+  gamma: 0
+  hash: 1
+  decorr: 0.01
+
+backbone_lr_scale: 0
+batch_size: 32
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 100

@@ -1,0 +1,36 @@
+# @package _global_
+defaults:
+  - override /backbone: clip_vision
+  - _self_
+
+model:
+  _target_: models.arch.csq.CSQ
+  backbone: ${backbone}
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+  nbit: 64
+  nclass: ${dataset.nclass}
+
+trainer:
+  _target_: trainers.csq.CSQTrainer
+
+criterion:
+  _target_: models.loss.csq.CSQLoss
+  multiclass: ${dataset.multiclass}
+  nbit: ${model.nbit}
+  codebook:
+    _target_: trainers.orthohash.get_codebook
+    codebook_method: "H"  # N,B,O,H
+    nclass: ${model.nclass}
+    nbit: ${model.nbit}
+  lambda_q: 0.001
+
+backbone_lr_scale: 0
+batch_size: 32
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 100

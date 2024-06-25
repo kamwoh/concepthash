@@ -1,0 +1,3 @@
+_target_: models.backbone.resnet.ResNet101
+pretrained: True
+custom_pretrained: null

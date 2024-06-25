@@ -1,0 +1,31 @@
+# @package _global_
+defaults:
+  - override /backbone: clip_vision
+  - _self_
+
+model:
+  _target_: models.arch.gh.SupGreedyHash
+  backbone: ${backbone}
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+  nbit: 64
+  nclass: ${dataset.nclass}
+
+trainer:
+  _target_: trainers.gh.SupGHTrainer
+
+criterion:
+  _target_: models.loss.gh.SupGHLoss
+  multiclass: ${dataset.multiclass}
+  alpha: 0.1  # quantization error
+  pow: 3.0
+
+backbone_lr_scale: 0
+batch_size: 32
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 100

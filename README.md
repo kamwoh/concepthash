@@ -2,4 +2,8 @@
 
 ![Poster](poster.jpg)
 
-The code is coming soon, I will release it after CVPR, still cleaning my messy codes and working towards the final project of my PhD :sweat:.
+Haven't clean my dirty code. For the main algorithm please run
+
+```commandline
+python main_v2.py dataset=cub200 model=concept_hash_final_v1_nosa_apt optim=sgd model.nbit=64
+```
