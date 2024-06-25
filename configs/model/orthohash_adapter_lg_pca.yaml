@@ -1,0 +1,49 @@
+# @package _global_
+defaults:
+  - override /backbone: clip_vision
+  - _self_
+
+model:
+  _target_: models.arch.orthohash.OrthoHash
+  codebook:
+    _target_: trainers.orthohash.get_codebook
+    codebook_method: "L"
+    nclass: ${model.nclass}
+    nbit: ${model.nbit}
+    class_name_path: ${dataset.data_folder}/class_names.txt
+    model_id: ${backbone.name}  # must be clip_vision
+    binary_method: "pca"
+    ae_iters: 10000
+    t: 1
+    identity_scale: 1
+    prompt_prefix: "a photo of a "
+  backbone: ${backbone}
+  nbit: 64
+  nclass: ${dataset.nclass}
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+  add_bn: True
+
+trainer:
+  _target_: trainers.orthohash.OrthoHashTrainer
+
+criterion:
+  _target_: models.loss.orthohash.OrthoHashLoss
+  ce: 1
+  s: 8
+  m: 0.2
+  m_type: "cos"  # cos/arc
+  multiclass: ${dataset.multiclass}
+  quan: 0
+  quan_type: "cs"
+  multiclass_loss: "label_smoothing"
+
+backbone_lr_scale: 0
+batch_size: 32
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 100

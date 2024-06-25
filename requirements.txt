@@ -1,0 +1,6 @@
+torchvision
+torch
+omegaconf
+hydra-core
+huggingface_hub
+transformers

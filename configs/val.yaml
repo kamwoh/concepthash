@@ -1,0 +1,41 @@
+defaults:
+  - _self_
+  - /dataset: null
+
+dataset_name: ${hydra:runtime.choices.dataset}
+
+R: -1
+PRs: [ 1, 5, 10 ]
+
+batch_size: 64
+dist_metric: "hamming"
+ternary_threshold: 0
+zero_mean_eval: False
+
+exp: "validation"
+tag: ""
+seed: 42
+work_dir: ${hydra:runtime.cwd}
+data_dir: ${work_dir}
+wandb: False
+device: "cuda"
+use_last: False
+compute_mAP: True  # False = compute PRs
+sub_code_eval: False
+sub_code_eval_setting:
+  start_bit: 0
+  end_bit: ${eval:"int(${model.nbit} - 1)"}
+  rand_bits: 0  # if rand_bits != 0, ignore start and bit
+
+save_code: False
+test_as_database: False
+
+logdir: ???
+
+hydra:
+  run:
+    dir: ${work_dir}/${logdir}/evaluations/${tag}${seed}_${now:%y%m%d_%H%M%S_%f}
+  job:
+    chdir: False
+
+eval_logdir: ${hydra:run.dir}

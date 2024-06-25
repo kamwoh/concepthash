@@ -1,0 +1,78 @@
+# @package _global_
+#defaults:
+#  - override /transforms: trivialaugment
+#  - _self_
+
+model:
+  _target_: models.arch.coop.LGHWithFixedPrompt
+  backbone:
+    _target_: models.backbone.clip.CLIP
+    name: openai/clip-vit-base-patch32
+  nbit: 64
+  nclass: ${dataset.nclass}
+  ncontext: 4
+  has_adapter: True
+  adapter_bottleneck_dim: 384
+  upt_config:
+    multi: True
+    num_heads: 8
+    dropout: 0.1
+    ensemble_method: "concat"
+    single_hash_fc: True
+    hash_pe: True
+  add_bn: True
+  use_before_projection: True
+  fixed_center:
+    _target_: trainers.orthohash.get_codebook
+    codebook_method: "L"
+    nclass: ${model.nclass}
+    nbit: ${model.nbit}
+    class_name_path: ${dataset.data_folder}/class_names.txt
+    model_id: ${model.backbone.name}  # must be clip_vision
+    binary_method: "pca"
+    ae_iters: 10000
+    t: 1
+    identity_scale: 1
+    prompt_prefix: "a photo of a "
+    quantized: False
+  text_projection:
+    _target_: torch.nn.Sequential
+    _args_:
+      - _target_: torch.nn.Linear
+        in_features: 512
+        out_features: 512
+      - _target_: torch.nn.ReLU
+      - _target_: torch.nn.Linear
+        in_features: 512
+        out_features: ${model.nbit}
+  concept_reg: True
+
+trainer:
+  _target_: trainers.coop.COOPTrainer
+
+criterion:
+  _target_: models.loss.coop.LGHLoss
+  margin: 0.2
+  scale: 8
+  loss_scales:
+    logits: 0
+    hash_logits: 0
+    bin_logits: 1
+    cont_logits: 1
+    l2: 0
+    attn_div_loss: 0
+    concept_logits: 1
+  avg_before_softmax: False
+  lmbd: 0.5
+  div_method: 1
+  ncontext: ${model.ncontext}
+
+backbone_lr_scale: 0
+batch_size: 32
+dataset:
+  norm: 3
+
+optim:
+  lr: 0.001
+
+epochs: 100
