@@ -1,3 +1,4 @@
+import gc
 import logging
 import os
 
@@ -145,3 +146,9 @@ class COOPTrainer(BaseTrainer):
                     store_key = f'acc_{key.split("_")[1]}'
 
                 meters[store_key].update(acc.item(), image.size(0))
+
+        if self.config.bypass_oom_error:
+            # this make training super slow but solve the unknown OOM error
+            # (the tensor is accumulating somewhere inside the clip vision model)
+            gc.collect()
+            torch.cuda.empty_cache()

@@ -76,3 +76,5 @@ optim:
   lr: 0.001
 
 epochs: 100
+
+bypass_oom_error: false  # turn this on if you observe GPU memory increasing, some machines work fine tho (:cry:)
